@@ -1,4 +1,4 @@
-import java.util.*; //<>// //<>// //<>//
+ //<>//
 
 class World {
 
@@ -21,16 +21,27 @@ class World {
     for (int i=0; i<col; i++)
       for (int j=0; j<row; j++) 
         grid[i][j] = new Node(i * cell_tam + cell_tam / 2, j * cell_tam + cell_tam / 2);
+    obstacle_list.clear();
   }
 
+  void update() {
+    if (follow) {
+      //print("HEHEHE");
+      for (Node n : obstacle_list) {
+        PVector obstacle = new PVector(n.x, n.y);
+        boid_a.flee(obstacle,1);
+      }
+
+      boid_a.follow_path();
+      boid_a.update();
+    }
+  }
   void draw_world() {
     for (int i=0; i<col; i++)
       line(cell_tam*i, 0, cell_tam*i, height);
 
     for (int j=0; j<row; j++) 
       line(0, cell_tam*j, width, cell_tam*j);
-
-
 
     fill(0);
     for (Node n : closed_list)
@@ -44,15 +55,17 @@ class World {
     fill(232, 193, 2);
     for (Node n : path_list)
       ellipse(n.x, n.y, 10, 10);
-      
+
     fill(255);
     for (Node n : obstacle_list)
       ellipse(n.x, n.y, 10, 10);
 
-    fill(255);
-    test_init.draw_node();
     fill(150);
     test_end.draw_node();
+
+    fill(255);
+    test_init.draw_node();
+    boid_a.display();
   }
 
   boolean aSTAR(Node init, Node end) {
@@ -65,7 +78,7 @@ class World {
 
     while (!open_list.isEmpty()) {
       Node N = least_f(open_list);
-      open_list.remove(is_in(N,open_list));
+      open_list.remove(is_in(N, open_list));
       closed_list.add(N);
 
       if (is_goal(N, end)) {
@@ -95,6 +108,10 @@ class World {
     return false;
   }
 
+  void set_path() {
+    boid_a.path = path_list;
+  }
+
   Vector<Node> get_neighbors(Node n) {
     /*
      *
@@ -121,7 +138,7 @@ class World {
   Vector<Node> set_parents(Vector<Node> v_nodes, Node parent) {
     Vector<Node> aux = new Vector<Node>();
     for (Node n : v_nodes) {
-      if (n != parent.parent && !n.obstacle && is_in(n,open_list) == open_list.size() && is_in(n,closed_list) == closed_list.size()) {
+      if (n != parent.parent && !n.obstacle && is_in(n, open_list) == open_list.size() && is_in(n, closed_list) == closed_list.size()) {
         n.parent = parent;
         aux.add(n);
       }
