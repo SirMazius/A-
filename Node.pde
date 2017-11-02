@@ -3,11 +3,13 @@ class Node {
   int x;
   int y;
   float f, g, h;
+  boolean obstacle;
   Node(int _x, int _y) {
     x = _x;
     y = _y;
     f = g = h = 0;
     parent = null;
+    obstacle = false;
   }
 
   void draw_node() {

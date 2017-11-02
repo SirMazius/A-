@@ -28,6 +28,9 @@ void keyPressed()
     else
       print(" NO HAY CAMINO SHUR");
     break;
+    case 'o':
+    w.set_obstacles();
+    break;
   }
 }
 

@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.*; //<>// //<>// //<>//
 
 class World {
 
@@ -6,12 +6,14 @@ class World {
   Vector<Node> open_list;
   Vector<Node> closed_list;
   Vector<Node> path_list;
+  Vector<Node> obstacle_list;
 
   World() {
     grid = new Node[col][row];
     open_list = new Vector<Node>();
     closed_list = new Vector<Node>();
     path_list = new Vector<Node>();
+    obstacle_list = new Vector<Node>();
     init_grid();
   }
 
@@ -27,22 +29,26 @@ class World {
 
     for (int j=0; j<row; j++) 
       line(0, cell_tam*j, width, cell_tam*j);
-      
-    
-      
+
+
+
     fill(0);
     for (Node n : closed_list)
       n.draw_node();
-      
+
     fill(135, 0, 142);
     for (Node n : open_list)
       n.draw_node();
     //Vector<Node> vec = get_neighbors(test_init);
-    
+
     fill(232, 193, 2);
     for (Node n : path_list)
-      ellipse(n.x,n.y,10,10);
+      ellipse(n.x, n.y, 10, 10);
       
+    fill(255);
+    for (Node n : obstacle_list)
+      ellipse(n.x, n.y, 10, 10);
+
     fill(255);
     test_init.draw_node();
     fill(150);
@@ -54,49 +60,36 @@ class World {
     closed_list = new Vector<Node>();
     path_list = new Vector<Node>();
     init.f = init.heuristic(end);
-    int index = 0;
+    int index = 0, C = 1;
     open_list.add(init);
 
     while (!open_list.isEmpty()) {
       Node N = least_f(open_list);
-      open_list.remove(N);
+      open_list.remove(is_in(N,open_list));
       closed_list.add(N);
-      Vector<Node> neighbors = get_neighbors(N);
-      for (Node neighbor : neighbors) {
-        Node aux = neighbor;
-        aux.draw_node();
-        aux.g = N.g + 1;
-        
-        if (is_goal(aux, end)) {
-          path_list = build_path(aux);
-          return true;
-        }
-          
 
-        index = is_in(aux, open_list);
-        if ( index != open_list.size()) { //Esta en la openlist
-          Node old = open_list.get(index);
-          if (old.g > aux.g) {
-            open_list.get(index).g = aux.g; //<>//
-            open_list.get(index).f = open_list.get(index).heuristic(end) + aux.g;
-            open_list.get(index).parent = N.parent;
-          }
-          //break;
-        }
+      if (is_goal(N, end)) {
+        path_list = build_path(N);
+        return true;
+      }
 
-        index = is_in(aux, closed_list);
-        if ( index != closed_list.size()) {
-          Node old = closed_list.get(index); //<>//
-          if (old.g > aux.g) {
-            closed_list.get(index).g = aux.g; //<>//
-            closed_list.get(index).f = closed_list.get(index).heuristic(end) + aux.g;
-            closed_list.get(index).parent = N.parent;
-            //EN OBRAS// HAY QUE METERLO EN LA OPEN Y SACARLO DE AQUI
+      Vector<Node> sucessors = get_neighbors(N);
+      for (Node n : sucessors) {
+        n.g = N.g + C;
+
+        index = is_in(n, open_list);
+        if (index != open_list.size()) {
+          if (open_list.get(index).g > n.g) {
+            exit();
           }
-          //break;
+        } else if (is_in(n, closed_list) != closed_list.size()) {
+          Node viejo = closed_list.get(is_in(n, closed_list));
+          if (viejo.g > n.g)
+            exit();
+        } else {
+          n.f = n.g + n.heuristic(end);
+          open_list.add(n);
         }
-        aux.f = aux.g + aux.heuristic(end);
-        open_list.add(aux);
       }
     }
     return false;
@@ -128,7 +121,7 @@ class World {
   Vector<Node> set_parents(Vector<Node> v_nodes, Node parent) {
     Vector<Node> aux = new Vector<Node>();
     for (Node n : v_nodes) {
-      if (n != parent.parent) {
+      if (n != parent.parent && !n.obstacle && is_in(n,open_list) == open_list.size() && is_in(n,closed_list) == closed_list.size()) {
         n.parent = parent;
         aux.add(n);
       }
@@ -163,7 +156,17 @@ class World {
       return true;
     return false;
   }
-  
+
+  void set_obstacles() {
+
+    for (int i = 0; i < col; i++) 
+      for (int j = 0; j < row; j++) 
+        if (random(0, 100) > 75) {
+          grid[i][j].obstacle = true;
+          obstacle_list.add(new Node(grid[i][j].x, grid[i][j].y));
+        }
+  }
+
   Vector<Node> build_path(Node n) {
     Vector<Node> path = new Vector<Node>();
     Node aux = n;
