@@ -10,7 +10,7 @@ boolean follow;
 void setup() {
   size(800, 800);
   cell_tam = 40;
-  boid_a = new Boid(300, 300, new PVector(0, 0), 10, 40, 5);
+  boid_a = new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 10, 40, 5);
   col = width / cell_tam;
   row = height / cell_tam;
   follow = false;
@@ -41,9 +41,9 @@ void keyPressed()
   case 'r':
     w.init_grid();
     break;
-    case 's':
+  case 's':
     follow = true;
-    w.set_path();
+    w.set_path(boid_a);
     break;
   }
 }
@@ -53,6 +53,8 @@ void mouseClicked() {
     test_init = new Node(mouseX/cell_tam * cell_tam + cell_tam/2, mouseY/cell_tam * cell_tam + cell_tam/2);
   } else if (mouseButton == RIGHT) {
     test_end = new Node(mouseX/cell_tam * cell_tam + cell_tam/2, mouseY/cell_tam * cell_tam + cell_tam/2);
+    for (Boid b : l_boids)
+        b.pos = new PVector(mouseX/cell_tam * cell_tam + cell_tam/2, mouseY/cell_tam * cell_tam + cell_tam/2);
     boid_a.pos = new PVector(mouseX/cell_tam * cell_tam + cell_tam/2, mouseY/cell_tam * cell_tam + cell_tam/2);
   }
 }

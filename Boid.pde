@@ -10,7 +10,7 @@ class Boid {
     acc = new PVector(0, 0);
     vel = _vel;
 
-    separation =7;
+    separation =2;
     cohesion = 1;
     aligment = 1;
 
@@ -139,6 +139,19 @@ class Boid {
     seek(objective, 1.0);
     if (PVector.dist(objective, pos) < 20 && path.size() > 1)
       path.remove(0);
+
+    if (path.size() == 1) {
+      path.clear();
+      Node aux_pos = test_init;
+
+      do {
+        test_init = new Node((int)random(100, width-100)/cell_tam * cell_tam + cell_tam/2, (int)random(100, height-100)/cell_tam * cell_tam + cell_tam/2);
+      } while (w.is_obstacle(test_init));
+
+      test_end = aux_pos;
+      w.aSTAR(test_init, test_end); // ESTO SIEMPRE TENDRIA QUE EXISTIR
+      w.set_path(this);
+    }
   }
 
   void set_path(Vector<Node> _path) {

@@ -1,4 +1,4 @@
- //<>//
+ArrayList<Boid> l_boids; //<>//
 
 class World {
 
@@ -7,6 +7,7 @@ class World {
   Vector<Node> closed_list;
   Vector<Node> path_list;
   Vector<Node> obstacle_list;
+  
 
   World() {
     grid = new Node[col][row];
@@ -14,6 +15,11 @@ class World {
     closed_list = new Vector<Node>();
     path_list = new Vector<Node>();
     obstacle_list = new Vector<Node>();
+    l_boids = new ArrayList<Boid>();
+    
+    for (int i = 0; i < 5; i++)
+      l_boids.add(new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 15, 60, 5));
+    
     init_grid();
   }
 
@@ -26,7 +32,15 @@ class World {
 
   void update() {
     if (follow) {
-      //print("HEHEHE");
+      
+      for (Boid b : l_boids) {
+        b.flock(l_boids);
+        b.seek(boid_a.pos,1);
+        for (Node n : obstacle_list)
+          b.flee(new PVector(n.x,n.y),5.0);
+        b.update();
+      }
+      
       for (Node n : obstacle_list) {
         PVector obstacle = new PVector(n.x, n.y);
         boid_a.flee(obstacle,1);
@@ -66,6 +80,9 @@ class World {
     fill(255);
     test_init.draw_node();
     boid_a.display();
+    fill(155);
+    for (Boid b: l_boids)
+      b.display();
   }
 
   boolean aSTAR(Node init, Node end) {
@@ -108,16 +125,11 @@ class World {
     return false;
   }
 
-  void set_path() {
-    boid_a.path = path_list;
+  void set_path(Boid b) {
+    b.path = path_list;
   }
 
   Vector<Node> get_neighbors(Node n) {
-    /*
-     *
-     *  HAY QUE MODIFICAR EL GRID PARA QUE GET NEIGHBORS DETECTE SI UN VECINO TIENE NINIOS
-     *
-     */
     Vector<Node> neighbors = new Vector<Node>();
     int x = n.x / cell_tam;
     int y = n.y / cell_tam;
@@ -184,6 +196,11 @@ class World {
         }
   }
 
+  boolean is_obstacle(Node n) {
+    if (grid[n.x/cell_tam][n.y/cell_tam].obstacle)
+      return true;
+    return false;
+  }
   Vector<Node> build_path(Node n) {
     Vector<Node> path = new Vector<Node>();
     Node aux = n;
