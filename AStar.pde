@@ -1,7 +1,10 @@
-import java.util.*; //<>// //<>//
+import java.util.*; //<>// //<>// //<>//
 World w;
 Node test_init, test_end, test_init2, test_end2;
 Boid boid_a, boid_b;
+ArrayList<Boid> l_boids_a; //<>//
+ArrayList<Boid> l_boids_b;
+
 int cell_tam;
 int col, row;
 float dt = 0.1;
@@ -10,8 +13,13 @@ boolean follow;
 void setup() {
   size(800, 800);
   cell_tam = 40;
+  l_boids_b = new ArrayList<Boid>();
   boid_a = new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 10, 40, 5, random_pos(), random_pos());
   //boid_b = new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 10, 40, 5);
+  for (int i = 0; i < 5; i++) {
+    l_boids_b.add(new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 10, 40, 5, random_pos(), random_pos()));
+  }
+
   col = width / cell_tam;
   row = height / cell_tam;
   follow = false;
@@ -24,6 +32,8 @@ void setup() {
   w.set_obstacles();
   follow = true;
   boid_a.generate_path();
+  for (Boid b : l_boids_b)
+    b.generate_path();
 }
 
 void draw() {

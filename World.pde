@@ -1,6 +1,4 @@
-ArrayList<Boid> l_boids_a; //<>//
-ArrayList<Boid> l_boids_b;
-
+ //<>//
 class World {
 
   Node [][] grid;
@@ -18,8 +16,8 @@ class World {
     obstacle_list = new Vector<Node>();
     l_boids_a = new ArrayList<Boid>();
 
-    for (int i = 0; i < 5; i++)
-      l_boids_a.add(new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 15, 60, 5, random_pos(), random_pos()));
+    //for (int i = 0; i < 5; i++)
+    //  l_boids_a.add(new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 15, 60, 5, random_pos(), random_pos()));
     init_grid();
   }
 
@@ -47,6 +45,12 @@ class World {
       }
 
       boid_a.follow_path();
+      
+      for (Boid b : l_boids_b) {
+        b.follow_path();
+        b.update();
+      }
+        
       boid_a.update();
     }
   }
@@ -58,34 +62,39 @@ class World {
     for (int j=0; j<row; j++) 
       line(0, cell_tam*j, width, cell_tam*j);
 
-    fill(0);
-    for (Node n : closed_list)
-      n.draw_node();
+    //fill(0);
+    //for (Node n : closed_list)
+    //  n.draw_node();
 
-    fill(135, 0, 142);
-    for (Node n : open_list)
-      n.draw_node();
+    //fill(135, 0, 142);
+    //for (Node n : open_list)
+    //  n.draw_node();
     //Vector<Node> vec = get_neighbors(test_init);
-
-    fill(232, 193, 2);
-    for (Node n : path_list)
-      ellipse(n.x, n.y, 10, 10);
-
+    
     fill(255);
     for (Node n : obstacle_list)
       ellipse(n.x, n.y, 10, 10);
 
-    fill(150);
-    //test_end.draw_node();
-    boid_a.end.draw_node();
+    fill(232, 193, 2);
+    //for (Node n : path_list)
+    //  ellipse(n.x, n.y, 10, 10);
+    
+    for (Node n : boid_a.path) {
+      ellipse(n.x, n.y, 10, 10);
+    }
+
+    
+
+    //fill(150);
+    //boid_a.end.draw_node();
 
     fill(255);
     //test_init.draw_node();
-    boid_a.init.draw_node();
+    //boid_a.init.draw_node();
     boid_a.display();
 
     fill(155);
-    for (Boid b : l_boids_a)
+    for (Boid b : l_boids_b)
       b.display();
   }
 
@@ -198,7 +207,7 @@ class World {
 
     for (int i = 0; i < col; i++) 
       for (int j = 0; j < row; j++) 
-        if (random(0, 100) > 75) {
+        if (random(0, 100) > 90) {
           grid[i][j].obstacle = true;
           obstacle_list.add(new Node(grid[i][j].x, grid[i][j].y));
         }
