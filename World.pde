@@ -1,4 +1,5 @@
-ArrayList<Boid> l_boids; //<>//
+ArrayList<Boid> l_boids_a; //<>//
+ArrayList<Boid> l_boids_b;
 
 class World {
 
@@ -7,7 +8,7 @@ class World {
   Vector<Node> closed_list;
   Vector<Node> path_list;
   Vector<Node> obstacle_list;
-  
+
 
   World() {
     grid = new Node[col][row];
@@ -15,11 +16,10 @@ class World {
     closed_list = new Vector<Node>();
     path_list = new Vector<Node>();
     obstacle_list = new Vector<Node>();
-    l_boids = new ArrayList<Boid>();
-    
+    l_boids_a = new ArrayList<Boid>();
+
     for (int i = 0; i < 5; i++)
-      l_boids.add(new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 15, 60, 5));
-    
+      l_boids_a.add(new Boid(140/cell_tam * cell_tam + cell_tam/2, 140/cell_tam * cell_tam + cell_tam/2, new PVector(0, 0), 15, 60, 5, random_pos(), random_pos()));
     init_grid();
   }
 
@@ -32,24 +32,25 @@ class World {
 
   void update() {
     if (follow) {
-      
-      for (Boid b : l_boids) {
-        b.flock(l_boids);
-        b.seek(boid_a.pos,1);
+
+      for (Boid b : l_boids_a) {
+        b.flock(l_boids_a);
+        b.seek(boid_a.pos, 1);
         for (Node n : obstacle_list)
-          b.flee(new PVector(n.x,n.y),5.0);
+          b.flee(new PVector(n.x, n.y), 5.0);
         b.update();
       }
-      
+
       for (Node n : obstacle_list) {
         PVector obstacle = new PVector(n.x, n.y);
-        boid_a.flee(obstacle,1);
+        boid_a.flee(obstacle, 1);
       }
 
       boid_a.follow_path();
       boid_a.update();
     }
   }
+
   void draw_world() {
     for (int i=0; i<col; i++)
       line(cell_tam*i, 0, cell_tam*i, height);
@@ -75,17 +76,24 @@ class World {
       ellipse(n.x, n.y, 10, 10);
 
     fill(150);
-    test_end.draw_node();
+    //test_end.draw_node();
+    boid_a.end.draw_node();
 
     fill(255);
-    test_init.draw_node();
+    //test_init.draw_node();
+    boid_a.init.draw_node();
     boid_a.display();
+
     fill(155);
-    for (Boid b: l_boids)
+    for (Boid b : l_boids_a)
       b.display();
   }
 
   boolean aSTAR(Node init, Node end) {
+
+    if (is_in(init, obstacle_list) != obstacle_list.size() || is_in(end, obstacle_list) != obstacle_list.size())
+      return false;
+
     open_list = new Vector<Node>();
     closed_list = new Vector<Node>();
     path_list = new Vector<Node>();
@@ -201,6 +209,7 @@ class World {
       return true;
     return false;
   }
+
   Vector<Node> build_path(Node n) {
     Vector<Node> path = new Vector<Node>();
     Node aux = n;

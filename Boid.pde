@@ -1,12 +1,15 @@
 class Boid {
   Vector<Node> path;
+  Node init, end;
   PVector pos, vel, acc;
   float mass, max_vel, max_force, r;
   float cohesion, separation, aligment = 1;
 
-  Boid(float x, float y, PVector _vel, float _max_vel, float _max_force, float tam) {
+  Boid(float x, float y, PVector _vel, float _max_vel, float _max_force, float tam, Node _init, Node _end) {
     path = new Vector<Node>();
-    pos = new PVector(x, y);
+    init = _init;
+    end = _end;
+    pos = new PVector(_end.x, _end.y);
     acc = new PVector(0, 0);
     vel = _vel;
 
@@ -141,17 +144,26 @@ class Boid {
       path.remove(0);
 
     if (path.size() == 1) {
+
       path.clear();
-      Node aux_pos = test_init;
+      Node aux_pos = init;
+      end = aux_pos;
 
       do {
-        test_init = new Node((int)random(100, width-100)/cell_tam * cell_tam + cell_tam/2, (int)random(100, height-100)/cell_tam * cell_tam + cell_tam/2);
-      } while (w.is_obstacle(test_init));
+        init = new Node((int)random(100, width-100)/cell_tam * cell_tam + cell_tam/2, (int)random(100, height-100)/cell_tam * cell_tam + cell_tam/2);
+      } while (w.is_obstacle(test_init) || !w.aSTAR(init, end));
 
-      test_end = aux_pos;
-      w.aSTAR(test_init, test_end); // ESTO SIEMPRE TENDRIA QUE EXISTIR
       w.set_path(this);
     }
+  }
+
+  void generate_path() {
+    do {
+      init = random_pos();
+      end = random_pos();
+    } while (!w.aSTAR(init, end));
+      pos = new PVector(end.x,end.y);
+      w.set_path(this);
   }
 
   void set_path(Vector<Node> _path) {
